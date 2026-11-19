@@ -7,3 +7,8 @@ dependencies = [
     "pillow>=13.0.0",
     "pyyaml>=6.0.3",
 ]
+
+[dependency-groups]
+dev = [
+    "matplotlib>=3.11.2",
+]

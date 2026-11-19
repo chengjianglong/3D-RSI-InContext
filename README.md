@@ -1,14 +1,49 @@
-# rsi-in-context
+# 3D-RSI-InContext: A Recursive Self-Improvement Framework with In-Context Learning for 3D Scene Generation
 
 A recursive self-improvement loop over two prompts: a **system prompt** (the generator's reusable Blender expertise) and a **user prompt** (the scene spec). From them, Claude writes a Blender script for a photorealistic house scene and saves it as a `.blend`. The scene has a kitchen, a living room, 3 bedrooms, a road in front and a garden in back.
 
-```
-(S_t, U_t) → generator (Claude) → scene_script.py → headless Blender → scene.blend + 9 fixed-camera renders
-          → structural checks (inspect.json) + vision judge → score + defects
-          → optimizer (Claude) sees prompts, scores, defects, renders, script, history → (S_t+1, U_t+1)
+No human edits the prompts, the scripts or the scenes. The only fixed inputs are the goal spec and a library of CC0 assets.
+
+<p align="center">
+  <img src="docs/media/flythrough_orbit.gif" width="49%" alt="Aerial orbit around the best generated house scene">
+  <img src="docs/media/flythrough_living.gif" width="49%" alt="Pan through the generated living room">
+  <br><em>The best scene (iteration 5), rendered from the generated <code>.blend</code> with Cycles. Full-quality video: <a href="docs/media/flythrough.mp4"><code>docs/media/flythrough.mp4</code></a></em>
+</p>
+
+<p align="center">
+  <img src="docs/media/score_progress.png" width="100%" alt="Score per iteration">
+</p>
+
+**In 7 self-improvement iterations, starting from one-line seed prompts:**
+- The combined score rose from **66.3 to 75.0**.
+- Structural checks rose from **91.6 to 97.8**.
+- The judge's completeness score rose from **6.1 to 7.7** out of 10.
+- The loop recovered from a catastrophic regression (iteration 1) and learned to stop it happening again.
+
+## How it works
+
+```mermaid
+flowchart LR
+    G[(goal_spec.yaml<br/>immutable)] -.scores against.-> C
+    G -.-> J
+    P["S_t, U_t<br/>system + user prompt"] --> GEN["Generator<br/>(Claude)"]
+    GEN -->|scene_script.py| B["Headless Blender 5.2<br/>build_scene(ctx)"]
+    B -->|traceback| GEN
+    B --> O["scene.blend<br/>+ 9 fixed-camera renders<br/>+ inspect.json"]
+    O --> C["Structural checks<br/>(deterministic)"]
+    O --> J["Vision judge<br/>(Claude)"]
+    C --> S["score + defects"]
+    J --> S
+    S --> OPT["Optimizer<br/>(Claude)"]
+    H[(history:<br/>edit → Δscore)] --> OPT
+    OPT -->|"S_t+1, U_t+1"| SEL{"better than<br/>best so far?"}
+    SEL -->|yes: new parent| P
+    SEL -->|no: log lesson,<br/>retry from best| P
 ```
 
 Each new iteration starts from the best-scoring prompt pair so far (elitism). A regression is logged, and its lesson is passed to the next proposal.
+- **Cameras:** the harness, not the LLM, places the evaluation cameras, so every iteration is photographed from the same viewpoints.
+- **Goal:** scoring always runs against the immutable `goal_spec.yaml`, never against the evolving user prompt. This stops the optimizer from improving its score by making the task easier.
 
 ## Setup
 
@@ -58,6 +93,8 @@ Each run writes `runs/<run_id>/`:
 | `rsi/optimizer.py` | Rewrites both prompts from the evaluation and history. A keyword guard prevents it from dropping goal requirements. |
 | `rsi/loop.py` | Orchestration: samples per iteration, elitism, budget and plateau stopping, resume. |
 | `rsi/report.py` | Static HTML report. |
+| `scripts/make_media.py` | Builds the README media from a run: score and prompt-length charts, per-view evolution GIFs, the milestone grid, and the fly-through MP4/GIFs. |
+| `scripts/blender_flythrough.py` | Renders an aerial orbit and a living-room pan from any generated `scene.blend`. |
 
 **Score** = `0.35·checks + 0.65·judge − 3·repairs`. A failed sample scores 0. The iteration score is the mean over its samples, which reduces noise.
 
@@ -90,16 +127,33 @@ The run stopped after iteration 7, when it reached the $80 API-equivalent budget
 - **Every edit cites a judge defect or check failure,** recorded in `optimizer.json`.
 - **Iteration 6 had the best judge scores** but lost to iteration 5, because the repair penalty cost more than the judge gain. Elitism kept iteration 5 as the parent. Iteration 7 tried to keep iteration 6's fixes without the truncation, but both samples still needed a repair. Prompt length growth (~29k chars) is the current bottleneck.
 
-**Same camera, seed (iteration 0) vs best (iteration 5).** These are sample 1 of each.
+### Same camera, every iteration
 
-| view | iteration 0 (66.3) | iteration 5 (75.0) |
-|---|---|---|
-| front street | ![](docs/exp1/renders/iter000_front_street.jpg) | ![](docs/exp1/renders/iter005_front_street.jpg) |
-| backyard | ![](docs/exp1/renders/iter000_backyard.jpg) | ![](docs/exp1/renders/iter005_backyard.jpg) |
-| aerial | ![](docs/exp1/renders/iter000_aerial.jpg) | ![](docs/exp1/renders/iter005_aerial.jpg) |
-| living room | ![](docs/exp1/renders/iter000_room_LivingRoom.jpg) | ![](docs/exp1/renders/iter005_room_LivingRoom.jpg) |
-| kitchen | ![](docs/exp1/renders/iter000_room_Kitchen.jpg) | ![](docs/exp1/renders/iter005_room_Kitchen.jpg) |
-| bedroom 1 | ![](docs/exp1/renders/iter000_room_Bedroom_1.jpg) | ![](docs/exp1/renders/iter005_room_Bedroom_1.jpg) |
+Each animation steps through iterations 0→7 from one fixed harness camera, using the best sample of each iteration. The label shows the iteration score and whether the iteration was accepted as the new parent.
+
+| Front street | Aerial |
+|---|---|
+| ![](docs/media/evolution_front_street.gif) | ![](docs/media/evolution_aerial.gif) |
+| **Backyard** | **Living room** |
+| ![](docs/media/evolution_backyard.gif) | ![](docs/media/evolution_room_LivingRoom.gif) |
+| **Kitchen** | **Bedroom 1** |
+| ![](docs/media/evolution_room_Kitchen.gif) | ![](docs/media/evolution_room_Bedroom_1.gif) |
+
+### Milestones side by side
+
+The grid compares four iterations:
+- **Iteration 0, the seed:** the house sits on bare sand, the backyard is a chain-link cage, and the interiors have concrete ceilings.
+- **Iteration 1, the failed over-specification:** most of the scene never got built.
+- **Iteration 3:** a lawn, picket fences and a neighbourhood appear, and the interiors are finished.
+- **Iteration 5, the best:** a textured lawn with fenced lots, a front porch, raised beds and stepping stones, a lighter kitchen, and a bedroom with a styled headboard and artwork.
+
+![Milestone grid](docs/media/evolution_grid.jpg)
+
+### Prompts grow from one line to dense, defect-driven specs
+
+![Prompt length and repairs](docs/media/prompt_growth.png)
+
+The prompts grew about 100× in the first rewrite, then kept growing slowly. Repairs fell to 0 at iteration 5, once the optimizer added a script-size budget. They rose again as the prompts kept growing, which is the current bottleneck.
 
 **Prompt evolution.**
 - The seed prompts were 121 and 198 characters: [system](docs/exp1/prompts/iter000_system.md), [user](docs/exp1/prompts/iter000_user.md).
@@ -109,6 +163,14 @@ The run stopped after iteration 7, when it reached the $80 API-equivalent budget
 - About 20–75 min per iteration; generation and rendering dominate.
 - About $7–15 API-equivalent per iteration, not billed on the subscription.
 - The `.blend` files (about 330 MB each, textures packed) and the full renders stay in `runs/`, which git ignores.
+
+## Regenerate the README media
+
+```sh
+B=/Applications/Blender.app/Contents/MacOS/Blender
+$B -b runs/exp1/iter_005/sample_1/out/scene.blend --python scripts/blender_flythrough.py -- runs/_fly 150 32
+uv run python scripts/make_media.py runs/exp1 docs/media --fly runs/_fly
+```
 
 ## Test the harness without the API
 
