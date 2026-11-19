@@ -74,6 +74,18 @@ def build_eval_cameras() -> tuple[dict[str, bpy.types.Object], list[str]]:
 
     lo, hi = house
     c = (lo + hi) / 2
+    # Clip exterior boxes to a window around the house so a huge ground plane placed in
+    # Road/Garden cannot push the cameras far away.
+    R = 35.0
+
+    def clip(b):
+        if b is None:
+            return None
+        blo = Vector((max(b[0].x, c.x - R), max(b[0].y, c.y - R), b[0].z))
+        bhi = Vector((min(b[1].x, c.x + R), min(b[1].y, c.y + R), b[1].z))
+        return (blo, bhi) if blo.x < bhi.x and blo.y < bhi.y else None
+
+    road, garden = clip(road), clip(garden)
     size = hi - lo
     width = max(size.x, 6.0)
     eye = 1.7
@@ -81,13 +93,13 @@ def build_eval_cameras() -> tuple[dict[str, bpy.types.Object], list[str]]:
 
     # 1. Front street view: standing across the road, looking at the facade.
     front_y = (road[0].y - 2.0) if road else lo.y - 1.6 * width
-    front_y = min(front_y, lo.y - 10.0)
+    front_y = max(min(front_y, lo.y - 10.0), lo.y - 30.0)
     cams["front_street"] = _cam("front_street", (c.x - 0.25 * width, front_y, eye),
                                 (c.x, lo.y, roof_mid), lens=26)
 
     # 2. Backyard view: from the far end of the garden back toward the house.
     back_y = (garden[1].y - 1.0) if garden else hi.y + 1.5 * width
-    back_y = max(back_y, hi.y + 6.0)
+    back_y = min(max(back_y, hi.y + 6.0), hi.y + 30.0)
     cams["backyard"] = _cam("backyard", (c.x + 0.25 * width, back_y, eye),
                             (c.x, hi.y, lo.z + 1.5), lens=24)
 

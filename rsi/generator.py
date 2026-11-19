@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .blender_runner import BlenderResult, run_scene
-from .llm import LLM, cached_text
+from .llm import LLM, OutputTooLongError, cached_text
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -37,6 +37,8 @@ Do not create cameras or set the render engine, samples, or resolution: the harn
 cameras (front street, backyard, aerial, top-down, one corner camera inside each room) and renders with
 Cycles. You may set world, lights, color management (view transform, look, exposure).
 No network access; only files from the manifest exist. Keep the build under ~5 minutes of CPU.
+Keep the script compact (well under ~1500 lines): use helper functions and data tables instead of
+repeated code. Responses over the output-token limit are discarded and count as a failed attempt.
 """
 
 
@@ -80,17 +82,29 @@ def generate_sample(llm: LLM, cfg: dict, system_prompt: str, user_prompt: str,
     (sample_dir / "system.md").write_text(system_prompt)
     (sample_dir / "user.md").write_text(user_prompt)
     system = build_system(system_prompt)
-    messages: list[dict] = [{"role": "user", "content": user_prompt}]
     res = SampleResult(sample_dir, ok=False, repairs=0)
     max_repairs = cfg["loop"]["max_repairs"]
+    request = user_prompt
 
     for attempt in range(max_repairs + 1):
-        text, usage = llm.call(role="generator", model=cfg["models"]["generator"],
-                               effort=cfg["effort"]["generator"], system=system, messages=messages)
-        res.cost_usd += usage.usd
-        (sample_dir / f"generator_response_{attempt}.md").write_text(text)
-        code = extract_code(text)
-        if code is None:
+        too_long = False
+        try:
+            text, usage = llm.call(role="generator", model=cfg["models"]["generator"],
+                                   effort=cfg["effort"]["generator"], system=system,
+                                   messages=[{"role": "user", "content": request}],
+                                   max_tokens=cfg["loop"].get("generator_max_tokens", 128000))
+            res.cost_usd += usage.usd
+        except OutputTooLongError as e:
+            too_long, text, code = True, "", None
+            err = (f"{e}. The response (reasoning + script) was far too long. Write a much more "
+                   "compact script: reuse helper functions and loops/data tables instead of repeating "
+                   "code, and keep it under ~1500 lines.")
+        else:
+            (sample_dir / f"generator_response_{attempt}.md").write_text(text)
+            code = extract_code(text)
+        if too_long:
+            pass  # err already set
+        elif code is None:
             err = "Response contained no ```python code block."
         else:
             script = sample_dir / "scene_script.py"
@@ -106,10 +120,9 @@ def generate_sample(llm: LLM, cfg: dict, system_prompt: str, user_prompt: str,
         if attempt == max_repairs:
             break
         res.repairs += 1
-        messages += [
-            {"role": "assistant", "content": text},
-            {"role": "user", "content": "The script failed when run in Blender:\n\n```\n"
-             f"{err[-5000:]}\n```\nFix the cause and return the COMPLETE corrected script "
-             "in one ```python block."},
-        ]
+        # Single-message repair request (works for both the CLI and API backends).
+        request = (f"{user_prompt}\n\n=== REPAIR REQUEST ===\nYour previous script for this request was:\n"
+                   f"```python\n{code or text[-20000:]}\n```\nIt failed when run in Blender:\n```\n"
+                   f"{err[-5000:]}\n```\nFix the cause and return the COMPLETE corrected script in one "
+                   "```python block.")
     return res

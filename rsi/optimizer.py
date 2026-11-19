@@ -115,21 +115,23 @@ def propose(llm: LLM, cfg: dict, parent: dict, last: dict | None, history: list[
 
     cap = cfg["loop"]["prompt_token_cap"]
     system = [cached_text(OPTIMIZER_SYSTEM.replace("{cap}", str(cap)))]
-    messages = [{"role": "user", "content": content}]
+    cost = 0.0
     for attempt in range(2):
         text, usage = llm.call(role="optimizer", model=cfg["models"]["optimizer"],
                                effort=cfg["effort"]["optimizer"], system=system,
-                               messages=messages, json_schema=SCHEMA, max_tokens=64000)
+                               messages=[{"role": "user", "content": content}],
+                               json_schema=SCHEMA, max_tokens=64000)
+        cost += usage.usd
         out = json.loads(text)
         missing = [k for k in guard_keywords if k.lower() not in out["user_prompt"].lower()]
         if not missing:
             break
-        messages += [{"role": "assistant", "content": text},
-                     {"role": "user", "content": f"Rejected: the user prompt no longer mentions {missing}. "
-                      "The goal may not be weakened. Return the full JSON again with those requirements kept."}]
+        content = content + [{"type": "text", "text": (
+            f"NOTE: a previous answer was rejected because its user prompt no longer mentioned {missing}. "
+            "The goal may not be weakened; keep those requirements explicitly.")}]
     else:
         out["user_prompt"] = parent["user"]
         out["change_summary"] += " [guard: user prompt reverted, dropped required elements]"
-    out["cost_usd"] = usage.usd
+    out["cost_usd"] = cost
     (iter_dir / "optimizer.json").write_text(json.dumps(out, indent=2))
     return out

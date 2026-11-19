@@ -15,15 +15,20 @@ Each new iteration starts from the best-scoring prompt pair so far (elitism). A 
 ```sh
 uv sync
 uv run python scripts/fetch_assets.py   # one-time: ~520 MB of CC0 Poly Haven HDRIs/textures/models
-export ANTHROPIC_API_KEY=...
 ```
+
+**LLM backend** (`backend` in `config.yaml`):
+- `claude_cli` (default): every role runs through headless Claude Code (`claude -p`) on your Claude subscription login. No API key is needed; log in once with `claude`. `ANTHROPIC_API_KEY` is stripped from the subprocess environment, so it can't override the login. Calls run with no tools, no MCP servers and no user settings or plugins. Images go in through `stream-json`, and structured output through `--json-schema`. Subscription usage limits apply: when one is hit, the run stops and can be resumed with `--resume`.
+- `api`: the Anthropic SDK with `ANTHROPIC_API_KEY`, set in the environment or in a project `.env`.
+
+In `usage.jsonl` and the report, costs are API-list-price equivalents. On a subscription nothing is billed per token, but `budget_usd` still caps that equivalent spend.
 
 The Blender path is set in `config.yaml` (default: `/Applications/Blender.app/Contents/MacOS/Blender`).
 
 ## Run
 
 ```sh
-uv run python -m rsi.loop --iterations 2 --samples 1 --render-samples 32   # smoke test (~$3–8)
+uv run python -m rsi.loop --iterations 2 --samples 1 --render-samples 32   # smoke test
 uv run python -m rsi.loop                                                  # full run (config.yaml)
 uv run python -m rsi.loop --resume runs/<run_id> --iterations 15           # continue / extend a run
 ```

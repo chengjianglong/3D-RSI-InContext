@@ -15,12 +15,11 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-import anthropic
 import yaml
 
 from . import checks, judge, optimizer, report
 from .generator import generate_sample
-from .llm import LLM
+from .llm import LLM, LLMFatalError
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -54,8 +53,7 @@ def evaluate_sample(llm: LLM, cfg: dict, goal: dict, S: str, U: str, sdir: Path,
         )
         rec["score"] = round(max(0.0, w["checks"] * c["score"] + w["judge"] * j["score"]
                                  - w["repair_penalty"] * gen.repairs), 2)
-    except (anthropic.AuthenticationError, anthropic.PermissionDeniedError,
-            anthropic.BadRequestError, anthropic.NotFoundError):
+    except LLMFatalError:
         raise  # configuration problems: abort the run (resumable) instead of scoring 0
     except Exception:  # noqa: BLE001 - one bad sample must not kill the run
         rec["errors"].append("pipeline error: " + traceback.format_exc()[-3000:])
@@ -102,7 +100,8 @@ def main(argv=None) -> int:
     hist_path = run_dir / "history.jsonl"
     history: list[dict] = [json.loads(l) for l in hist_path.read_text().splitlines()] if hist_path.exists() else []
 
-    llm = LLM(cfg["pricing_per_mtok"], ledger_path=run_dir / "usage.jsonl")
+    llm = LLM(cfg["pricing_per_mtok"], ledger_path=run_dir / "usage.jsonl",
+              backend=cfg.get("backend", "claude_cli"))
     spent_before = sum(h["cost_usd"] for h in history)
     K, N = cfg["loop"]["samples_per_iter"], cfg["loop"]["iterations"]
     keywords = goal["keywords_user_prompt_must_keep"]

@@ -1,3 +1,6 @@
+# claude_cli: headless `claude -p` on your Claude subscription login (no API key).
+# api: Anthropic API with ANTHROPIC_API_KEY (or .env).
+backend: claude_cli
 blender: /Applications/Blender.app/Contents/MacOS/Blender
 models:
   generator: claude-opus-5-5
@@ -11,8 +14,9 @@ loop:
   iterations: 10
   samples_per_iter: 2
   max_repairs: 2
+  generator_max_tokens: 128000   # reasoning + script
   plateau_patience: 3
-  budget_usd: 80
+  budget_usd: 80            # cap on API-list-price-equivalent spend (not billed on a subscription)
   prompt_token_cap: 12000   # combined S+U soft cap; optimizer must consolidate above it
 render:
   engine: CYCLES
