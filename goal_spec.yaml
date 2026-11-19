@@ -1,0 +1,37 @@
+# IMMUTABLE: the user's intent. The optimizer never sees an editable copy of this file;
+# the judge and structural checks score against it, not against the evolving user prompt.
+intent: >
+  A photo-realistic 3D scene in Blender (.blend) of a single-family house with a kitchen,
+  a living room and three bedrooms, a traffic road in front of the house, and a garden in
+  the backyard. It should look like a real photograph of a real suburban property.
+required:
+  rooms:
+    Kitchen:   {collection: "Kitchen",    area_m2: [8, 30],  furniture: [counter, stove, fridge, sink, cabinet]}
+    LivingRoom: {collection: "LivingRoom", area_m2: [14, 50], furniture: [sofa, table, tv, rug, lamp, chair]}
+    Bedroom_1: {collection: "Bedroom_1",  area_m2: [8, 30],  furniture: [bed, wardrobe, nightstand, lamp]}
+    Bedroom_2: {collection: "Bedroom_2",  area_m2: [8, 30],  furniture: [bed, wardrobe, nightstand, lamp]}
+    Bedroom_3: {collection: "Bedroom_3",  area_m2: [8, 30],  furniture: [bed, wardrobe, nightstand, lamp]}
+  exterior:
+    House:    {collection: "House_Shell", elements: [wall, roof, window, door]}
+    Road:     {collection: "Road",   side: front, elements: [road, sidewalk, marking]}
+    Garden:   {collection: "Garden", side: back,  elements: [grass, tree, plant, fence, path]}
+    Lighting: {collection: "Lighting"}
+  conventions:
+    up_axis: +Z
+    house_front_faces: -Y      # road lies at negative Y of the house, garden at positive Y
+    units: meters
+keywords_user_prompt_must_keep: [kitchen, living room, bedroom, road, garden, photo]
+score_weights:
+  checks: 0.35
+  judge: 0.65
+  repair_penalty: 3      # points off (0-100 scale) per repair attempt used
+  failure_score: 0       # a sample that never ran
+judge_criteria:
+  photorealism: "Would a viewer mistake this for a photograph? Materials (PBR, texture detail, roughness variation), lighting (global illumination, soft shadows, plausible exposure), geometric detail (bevels, trims, no floating/intersecting objects)."
+  completeness: "Does the view show what goal_spec requires for that area (the right room type with its furniture; road with sidewalk/markings in front; garden with lawn, plants, trees, fence in back)?"
+  plausibility: "Real-world scale, proportions, layout logic (doors, windows, walls enclose rooms, furniture against walls, nothing floating)."
+judge_anchors:
+  "2": "Untextured primitives or flat grey boxes; empty or broken render; obviously synthetic."
+  "5": "Recognizable house/room with some textures and furniture, but clearly CG: flat lighting, repeated textures, missing details, wrong scale cues."
+  "8": "Close to architectural-visualization quality: rich PBR materials, convincing daylight/GI, detailed furniture, correct scale; minor tells only."
+  "10": "Indistinguishable from a real photograph."

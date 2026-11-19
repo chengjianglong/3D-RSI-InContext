@@ -1,0 +1,23 @@
+blender: /Applications/Blender.app/Contents/MacOS/Blender
+models:
+  generator: claude-opus-5-5
+  judge: claude-opus-5-5
+  optimizer: claude-opus-5-5
+effort:
+  generator: high
+  judge: high
+  optimizer: high
+loop:
+  iterations: 10
+  samples_per_iter: 2
+  max_repairs: 2
+  plateau_patience: 3
+  budget_usd: 80
+  prompt_token_cap: 12000   # combined S+U soft cap; optimizer must consolidate above it
+render:
+  engine: CYCLES
+  samples: 128
+  resolution: [960, 540]
+  timeout_s: 900
+pricing_per_mtok:            # USD; used for budget tracking
+  claude-opus-5-5: {input: 4.0, output: 20.0, cache_write: 5.0, cache_read: 0.2}
