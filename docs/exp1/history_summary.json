@@ -1497,5 +1497,242 @@
   "cost_usd": 14.6967,
   "iter_dir": "/Users/clong1/Projects/rsi-in-context/runs/exp1/iter_006",
   "goal_sha": "64f35f072fed"
+ },
+ {
+  "iter": 7,
+  "parent": 5,
+  "score": 71.85,
+  "delta": -3.12,
+  "is_best_at_time": false,
+  "samples": [
+   {
+    "idx": 0,
+    "dir": "/Users/clong1/Projects/rsi-in-context/runs/exp1/iter_007/sample_0",
+    "ok": true,
+    "repairs": 1,
+    "errors": [
+     "Traceback (most recent call last):\n  File \"/Users/clong1/Projects/rsi-in-context/rsi/blender_side/harness.py\", line 105, in main\n    exec(compile(src, \"scene_script.py\", \"exec\"), ns)  # noqa: S102 - generated code is the point\n         ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"scene_script.py\", line 821\n    place(fl[i%len(fl)],G,-5.5+dx,26+dy,z=.05,h=.5+.4*((i*3)%5)/4,fit=1,rot=i*1.3,cr=(-7.5,-3\n                                                                                           ^^\nSyntaxError: invalid syntax. Perhaps you forgot a comma?\n"
+    ],
+    "score": 72.26,
+    "cost_usd": 4.4404602,
+    "checks_score": 97.63,
+    "check_failures": [],
+    "checks_parts": {
+     "presence": 30.0,
+     "layout": 25.0,
+     "elements": 20.0,
+     "realism_proxies": 22.63
+    },
+    "judge_score": 63.21,
+    "judge_criteria": {
+     "photorealism": 6.0,
+     "completeness": 7.78,
+     "plausibility": 6.78
+    },
+    "defects": [
+     {
+      "view": "aerial",
+      "severity": 2,
+      "description": "The ground is one flat green plane with a large yellow-green blotchy tint, also visible in top_down. Neighbour houses are identical simple boxes, fenced lots stand empty with no houses, and trees are few and isolated. It reads as a game map, not a suburb.",
+      "likely_cause": "Single ground plane with a large-scale noise color ramp and no grass texture or displacement. Neighbour lots are instanced fences without matching houses. No scatter of trees, shrubs or driveways."
+     },
+     {
+      "view": "backyard",
+      "severity": 2,
+      "description": "The garden is mostly bare lawn. The raised beds are nearly empty, there are only a few tiny shrubs along the fence, and there are no flower borders or hedges. The stepping stones are flat, paper-thin planes.",
+      "likely_cause": "Too few plant assets scattered. No particle or geometry-nodes scatter of plants in the beds or along the fence. The stepping stones need thickness, bevels and a stone PBR texture."
+     },
+     {
+      "view": "front_street",
+      "severity": 2,
+      "description": "The road is uniform flat grey with no wear, cracks or texture variation. The sidewalk in front of the house is a thin, barely visible strip, and the near verge is a thick slab with a hard CG edge. The front yard is empty lawn with no driveway, mailbox or plantings.",
+      "likely_cause": "Asphalt material uses too large a scale or too little roughness/normal variation. The sidewalk is too narrow and needs a curb and gutter. Front-yard set dressing is missing."
+     },
+     {
+      "view": "front_street",
+      "severity": 2,
+      "description": "The house facade lacks detail. Windows are small dark rectangles with thin frames and no sills or lintels, there is no foundation plinth, the fascia is a flat white strip with no gutters, and the brick looks flat at mid distance.",
+      "likely_cause": "Simple boolean window cutouts with no sill or trim geometry. Brick material is missing a normal/displacement map. No gutter or downpipe meshes."
+     },
+     {
+      "view": "room_LivingRoom",
+      "severity": 2,
+      "description": "The CRT TV overhangs or intersects the front edge of its low wooden cabinet instead of sitting fully on top. The sofa is not oriented toward the TV, and the stacked curtain panels on the right wall look broken.",
+      "likely_cause": "TV object placement and scale are wrong relative to the stand bounding box. Furniture rotation does not follow the room layout. Curtain objects are duplicated or overlapping."
+     },
+     {
+      "view": "room_Bedroom_1",
+      "severity": 1,
+      "description": "In all three bedrooms the bedspreads are thin single-sided sheets with an artificial wavy hem and no thickness. The rugs are flat untextured slabs.",
+      "likely_cause": "Cloth plane without a Solidify modifier and with a procedural wave edge. Rug material has no fabric texture or normal map."
+     },
+     {
+      "view": "room_Bedroom_3",
+      "severity": 1,
+      "description": "All three bedrooms use the same template: the same pendant shade, the same framed wavy art, the same accent-wall panel, the same lamps and the same nightstands. Only the colors change.",
+      "likely_cause": "The bedroom generator reuses one asset set. Vary the furniture models, artwork and lighting per room."
+     },
+     {
+      "view": "room_Kitchen",
+      "severity": 1,
+      "description": "The dining chairs are a flat uniform white with no wood grain or wear. The fridge and walls are perfectly clean. Small clutter such as utensils, a kettle or towels is minimal.",
+      "likely_cause": "Plain diffuse white material with no roughness or normal variation. Not enough small props are set-dressed."
+     }
+    ],
+    "judge_summary": "The interiors are the strongest part of the scene. The kitchen, living room and three bedrooms are all present, furnished and lit with good GI (about 7/10 photorealism). The exteriors are weaker. The layout is correct, with the road and sidewalk in front and a fenced garden with trees, beds and a patio behind, but it is clearly CG. The ground is flat and blotchy, the road is a uniform slab, the facade has little detail, the garden is sparse, and the neighbourhood is low-detail (4\u20136/10). The main fixes are: a better ground and lawn material, more planting scattered in the garden, facade trim, and road and sidewalk detail. Indoors, fix the TV and stand intersection, add thickness to the bedspreads, and give the three bedrooms different furniture and art."
+   },
+   {
+    "idx": 1,
+    "dir": "/Users/clong1/Projects/rsi-in-context/runs/exp1/iter_007/sample_1",
+    "ok": true,
+    "repairs": 1,
+    "errors": [
+     "Traceback (most recent call last):\n  File \"/Users/clong1/Projects/rsi-in-context/rsi/blender_side/harness.py\", line 105, in main\n    exec(compile(src, \"scene_script.py\", \"exec\"), ns)  # noqa: S102 - generated code is the point\n         ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"scene_script.py\", line 653\n    S=\n      ^\nSyntaxError: invalid syntax\n"
+    ],
+    "score": 71.44,
+    "cost_usd": 4.5334522,
+    "checks_score": 97.37,
+    "check_failures": [],
+    "checks_parts": {
+     "presence": 30.0,
+     "layout": 25.0,
+     "elements": 20.0,
+     "realism_proxies": 22.37
+    },
+    "judge_score": 62.1,
+    "judge_criteria": {
+     "photorealism": 6.0,
+     "completeness": 7.67,
+     "plausibility": 6.44
+    },
+    "defects": [
+     {
+      "view": "aerial",
+      "severity": 2,
+      "description": "Fences show up as thick, solid dark-brown slabs forming open L-shaped runs that don't enclose the lots, and they cut across neighbouring yards. Every neighbouring house is an identical clone with the same footprint, roof and colours.",
+      "likely_cause": "Fences are scaled cube walls instead of post-and-board geometry, and their placement isn't tied to lot boundaries. Neighbours come from a linked/array duplicate with no variation in mesh, material or rotation."
+     },
+     {
+      "view": "front_street",
+      "severity": 2,
+      "description": "A strip of tall particle grass in the foreground ends abruptly at a flat, untextured green plane. The road and sidewalk sit almost flush with no visible curb height. The front yard is bare lawn with no driveway, path edging, shrubs or foundation planting. Facade windows are flat, with no reveal depth or sills.",
+      "likely_cause": "Hair particle system is limited to one vertex group or strip, and the rest of the ground is a plain diffuse material. Curb isn't modelled as an extruded step. Windows are inset only a few mm with no sill geometry. No landscaping assets scattered in the front yard."
+     },
+     {
+      "view": "backyard",
+      "severity": 2,
+      "description": "The garden is sparse: a uniform lawn, two nearly empty raised beds and two trees. There are no flower borders, shrubs, hedges or garden furniture beyond one chair. The patio is a thin pale slab.",
+      "likely_cause": "Too few vegetation assets were scattered. Raised beds have no plant particle instances. No border beds or hedge geometry along the fence line."
+     },
+     {
+      "view": "aerial",
+      "severity": 2,
+      "description": "The ground plane reads as a uniform, saturated green with faint tiling and no variation from mowing, wear or soil, so the image looks like a game render.",
+      "likely_cause": "One tiled grass texture on a large plane with no macro variation (noise-driven colour mix) and no displacement. Grass particles are culled or invisible at this distance."
+     },
+     {
+      "view": "room_LivingRoom",
+      "severity": 2,
+      "description": "An oversized CRT TV overhangs the front of a much smaller low cabinet and looks unsupported. The rug is a flat pink plane with no fibre texture.",
+      "likely_cause": "TV asset scaled or positioned without checking it against the cabinet's bounding box. Rug uses a plain colour BSDF with no fabric normal map or displacement."
+     },
+     {
+      "view": "room_Kitchen",
+      "severity": 1,
+      "description": "Flat, evenly bright lighting with weak contact shadows under the table, chairs and fridge. The window frames a neighbour's brick wall very close by.",
+      "likely_cause": "Strong uniform fill light or world strength is too high, AO/GI bounces are low, and the view transform isn't using Filmic/AgX with proper exposure. Neighbouring house sits too close to the kitchen-side lot line."
+     },
+     {
+      "view": "room_Bedroom_1",
+      "severity": 1,
+      "description": "All three bedrooms use the same template (identical pendant, coral desk lamps, accent wall with an abstract print, white wardrobe and rug), so they look procedurally generated. Bedding is a smooth sheet with no folds or wrinkles.",
+      "likely_cause": "Bedrooms are generated from one script with only the colours changed. Blankets are simple solidified planes with no cloth simulation or wrinkle normal map."
+     },
+     {
+      "view": "top_down",
+      "severity": 1,
+      "description": "The two slopes of each roof render in clearly different orange tones, and the front ground/paths look flat. Neighbouring lots copy the main lot's path layout exactly.",
+      "likely_cause": "Direct sun hits one slope at a steep angle with no texture variation to break up the difference. Path and lot layout is duplicated from the same function with no randomisation."
+     }
+    ],
+    "judge_summary": "All required elements are present: a brick house with roof, windows and door; a road with sidewalk in front; a fenced garden behind; and a kitchen, living room and three furnished bedrooms. The interiors are the strongest views (photorealism around 7) thanks to decent PBR wood floors and furniture, but their lighting is flat and over-exposed, contact shadows are weak, and the three bedrooms share one template. The exteriors are recognisable but clearly CG: flat ground textures, slab-like fence walls that don't enclose lots, cloned neighbouring houses, a sparse garden, a bare front yard and shallow window reveals. The aerial and top-down views look the most game-like. Biggest gains would come from proper fence geometry and lot enclosure, richer garden and front-yard planting, ground material variation, and more realistic exposure and AO indoors."
+   }
+  ],
+  "system_sha": "30870d86f83a",
+  "user_sha": "0fe8e9a7f28b",
+  "system_chars": 15744,
+  "user_chars": 13549,
+  "change_summary": "I made targeted edits to iteration 5 (75.0, the current best). The goal is to keep iteration 6's fixes, which the judge scored higher (64.1 and 67.8 vs 61.4 and 64.0), without its truncation. Both of iteration 6's samples were cut off at the output limit and needed repairs, which cost more than its gains. Camera positions and the length limit are my estimates from the renders and line counts, not harness data.\n\n**Length (system prompt)**\n- **Cap:** at most 620 lines and 35k characters, in dense style. The prompt now tells the generator that 690 lines / 37k characters fit, and that scripts reaching 745 and 905 lines were cut off.\n- **Cuts to pay for the additions:** no bath vanity or mirror, no entry art, no separate bath floor tile, no kitchen sink-window curtains, no garage.\n\n**Defect fixes (system prompt)**\n- **Windows:** two-leaf exterior walls with brick reveals, recessed dark 'Frame_Win' frames, and tinted reflective glass. Interior lights get visible_glossy=False.\n- **Gutters and downpipes:** anthracite, hugging the wall.\n- **Duvets:** a radial-corner drape formula with loft, stronger wrinkles and hem waves.\n- **Grass:** two-segment blades in three materials chosen per blade, placed only where the cameras see. Stones sit flush, with a tight grass skip around them.\n- **Lawn:** olive, with dry and lush patches.\n- **Kitchen tiles:** darker.\n- **Imported models:** place() gains a w (target width) parameter and a documented rotation convention. The instance cap rises to 180.\n- **Camera rule:** a no-tall-items zone near the SW camera corner.\n\n**Scene changes (user prompt)**\n- **Living room:** the TV and sofa move to the north wall, which the camera sees.\n- **Bedrooms:** wardrobes move to the north end of the west wall, in a pale finish.\n- **Back door:** a Bedroom_2 glazed patio door with a back step.\n- **Gutters:** exact gutter and downpipe coordinates.\n- **Kitchen:** a stove at h=0.9, a fridge with a door seam and two handles, and counter props.\n- **Garden:** 2.3 m wide shrub borders with larger shrubs, plus a fuller island and vegetable beds.\n- **Road:** wheel-path wear strips and patches, and a 3.5 m far sidewalk.\n- **Neighbourhood:** 14 varied neighbour houses, including a back row with a back lane in the Garden collection, plus about 30 context trees that avoid the houses.",
+  "diagnosis": "I compared iteration 5 (75.0, the current best) with iteration 6 (74.0, rejected).\n\n**Why iteration 6 regressed.** Its ideas helped: the judge scored both samples higher than iteration 5 (64.1 and 67.8 vs 61.4 and 64.0). Both samples were still cut off at the output limit, at line 745 (written with spaces after commas) and at line 905. Each then needed a repair, and the repair penalty more than cancelled the judge gain. Raising the cap to 650 lines / 40k characters invited bloat. The current best was about 690 dense lines / 37k characters and fit, so the real limit is about 40k characters of dense code. The generator overshoots whatever cap it is given by about 15%. Conclusion: re-apply iteration 6's judge-positive fixes, but pay for them with explicit cuts, denser syntax and a strict cap.\n\n**Defects in the current best, traced to its script:**\n1. **Living room \"no TV\".** The TV sits on the west wall, behind the SW-corner camera. Iteration 6 moved it to the east wall, but the sofa stayed far away, so it read as \"tiny TV far from sofa\". Fix: put the media wall on the north wall, with the sofa facing it 3.3 m away and the TV scaled to 1.3 m wide. The camera then sees the TV and the sofa side-on.\n2. **Dark slab at the left edge of bedroom frames.** Dark wood wardrobes are centred on the west wall at y=8, about 2 m from the camera corner. Fix: move them to the north end of the west wall and paint them pale.\n3. **Boxy bedding.** The fold uses max(zu, zv), which gives mitred box corners. Wrinkles are only 0.008 m, the top has no loft, and the hanging sides are straight. Fix: a radial corner fold, loft, wrinkles of 0.01 m or more, and hem waves.\n4. **Flat white windows from outside.** Glass is near-white with the frame centred in the wall, and the outward face is the only brick, so the reveals are paint-white. Fix: a two-leaf wall (brick outer leaf), a recessed dark frame, tinted glass with Specular IOR Level 1.0, and lights with visible_glossy=False to remove the dots in the glass.\n5. **Posts past the house corner.** The downpipes are at x=\u00b18.45, y\u2248\u22120.6, standing 0.5 m off the wall, so they read as posts. Fix: give explicit coordinates that hug the wall.\n6. **Uniform spiky grass; stones sitting on top.**\n   - All blades are one shape and one material at 100/m\u00b2, and half the blades are behind the cameras or outside their view (the frame bottom hits the ground about 3.6 m ahead).\n   - Fix: three materials picked per blade, two-segment blades, and density concentrated in the visible bands.\n   - Stones get a flush top and a tight grass skip around them.\n7. **Bare garden.**\n   - Shrub footprints were capped by fit=1.2 inside 1.3 m beds, so the shrubs are tiny and invisible from the camera.\n   - The island flowers were capped by fit=0.7, so the island reads as a \"bare pad\".\n   - Fix: 2.3 m wide borders, fit=2.0, and larger island and vegetable-bed plants.\n8. **Aerial \"endless flat green plane\".** The lawn's macro variation is only \u00b115% and it is saturated, and the outer ground is empty. Fix: an olive lawn with dry/lush patches, more neighbour houses (a far-side row, outer houses at \u00b184, and a back row with a lane, in the Garden collection so they don't shift the Road collection's position), and about 30 context trees that avoid houses.\n9. **Smaller defects:**\n   - Kitchen tiles are blown out: their colour is too light.\n   - The stove is undersized: it was imported without a target height.\n   - The fridge is plain.\n   - There is no back door: add a glazed patio door in Bedroom_2.\n   - The road is uniform: add wheel-path wear strips and patches.",
+  "edits": [
+   {
+    "target": "system",
+    "addresses": "Iteration 6 regression: both samples were cut off at the output limit (line 745 and line 905), then repaired. The current best fit at about 690 lines / 37k characters.",
+    "change": "The budget section now states the measured limits. Cap: 620 lines and 35k characters, written dense (no spaces after commas, single-line if/for allowed). Each new feature is paid for by an explicit cut list: bath vanity/mirror, entry art, bath floor tile material, kitchen sink curtains, garage."
+   },
+   {
+    "target": "system",
+    "addresses": "Flat white windows with no depth; window reveals read as white; dots and lamp reflections in the glass.",
+    "change": "Exterior walls become two leaves (0.105 brick outer leaf, all faces Brick; painted inner leaf). Window frames are recessed to the leaf joint and use dark 'Frame_Win'. Glass is tinted (0.78, 0.83, 0.84) with Specular IOR Level 1.0. Interior lights get ob.visible_glossy=False."
+   },
+   {
+    "target": "system",
+    "addresses": "Duvets read as rigid rectangular slabs in every bedroom (both judges, both iterations).",
+    "change": "New drape formula: radial corner fold via hypot(du, dv), r=0.06, a 0.02 top loft, wrinkles of 0.01 + 0.005 m, and hem waves on the hanging sides. The fabric texture uses a 0.25 m tile with normal strength 1.0."
+   },
+   {
+    "target": "system",
+    "addresses": "Backyard and verge grass looked like a uniform spiky single-tone carpet, and half the blades fell outside the camera views.",
+    "change": "Two-segment blades with three per-blade materials (Grass_A, Grass_B, Grass_Dry) assigned through material_index, a skewed height distribution, and density concentrated in the visible bands (the frame bottom hits the ground about 3.6 m ahead). Stones are flush with the ground and have a tight grass skip around them."
+   },
+   {
+    "target": "system",
+    "addresses": "Aerial: flat uniform saturated green ground.",
+    "change": "The lawn recipe is now olive, with a large-patch dry/lush multiply (Noise 0.06) plus a 0.5-scale variation. Lawn colours match the blade colours so gaps between blades don't read."
+   },
+   {
+    "target": "system",
+    "addresses": "Wardrobe and shelf blocking the left edge of bedroom frames.",
+    "change": "Camera rule: keep the south 2.8 m of the west wall and the west half of the south wall free of anything taller than 0.9 m. Tall storage goes at the north end of the west wall in 'WardrobePaint'. The corner rule now applies only to the SW corner."
+   },
+   {
+    "target": "system",
+    "addresses": "Tiny TV and too many imported instances (the iteration 5 script came close to its 128 cap).",
+    "change": "place() gains a w parameter (target width), plus a documented rotation convention (assets face \u2212Y at rot 0). The instance cap is raised to 180, and context trees must avoid house rectangles."
+   },
+   {
+    "target": "user",
+    "addresses": "Living room: 'no TV', 'sparse', 'no rug under the seating group'.",
+    "change": "The media wall is now the north wall, which the camera sees: TV w=1.3 on a console at x \u22125.4..\u22123.6. The sofa faces it at y=1.0, with a rug and coffee table between, armchairs on both sides, the cabinet on the east wall and art on the north wall."
+   },
+   {
+    "target": "user",
+    "addresses": "Bedroom left-edge occlusion, plus the backyard defect 'no back door to the patio'.",
+    "change": "Wardrobes and the drawer cabinet move to the north end of the west wall (y about 9.0\u201310.3). The Bedroom_2 north window becomes a 1.4 m glazed patio door at x=2.2 with a back step; the desk moves to x 0.0..1.2."
+   },
+   {
+    "target": "user",
+    "addresses": "Downpipes standing off the wall like posts; 'no gutters'.",
+    "change": "Exact coordinates for the gutters (y \u22120.66..\u22120.52 and 11.02..11.16, anthracite) and for the downpipes at x=\u00b17.7, hugging the wall faces, with connectors up to the gutter."
+   },
+   {
+    "target": "user",
+    "addresses": "Bare garden: tiny invisible shrubs, bare island pad, empty raised beds.",
+    "change": "Borders 2.3 m wide with 12 shrubs per side (h 1.0\u20131.6, fit 2.0, skipped near tree trunks). The island gets 7 plants (h 0.5\u20130.9, fit 1.0), and the vegetable beds 3 plants each (h 0.5)."
+   },
+   {
+    "target": "user",
+    "addresses": "Aerial: endless empty plane and cloned neighbours; road uniform; front foreground lawn.",
+    "change": "Neighbours come from a 14-row table: same side \u00b128/\u00b156/\u00b184; across the street \u00b130/\u00b158; and a back row at y 55..64 with a back lane, in Garden. Widths, wall materials and roof slopes vary, each with a chimney. About 30 context trees avoid the houses. The road gets wheel-path wear strips and patches. Sidewalk_Far widens to 3.5 m, and the verge grass covers only the visible strip."
+   },
+   {
+    "target": "user",
+    "addresses": "Kitchen: blown-out tiles, featureless fridge, undersized stove, bare worktop, curtains over the sink.",
+    "change": "The stove is imported at h=0.9. The fridge gets a door seam and two handles, the counter gets a cutting board and two canisters, the sink window gets no curtains, and the chairs move 0.35 m out from the table. The tile colours are darkened in the system prompt."
+   }
+  ],
+  "cost_usd": 10.5273,
+  "iter_dir": "/Users/clong1/Projects/rsi-in-context/runs/exp1/iter_007",
+  "goal_sha": "64f35f072fed"
  }
 ]

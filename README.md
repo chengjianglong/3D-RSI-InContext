@@ -68,7 +68,7 @@ Each run writes `runs/<run_id>/`:
 - 2 samples per iteration, Cycles at 128 samples, 960×540.
 - Started from the naive one-line seed prompts.
 
-The run was still going when this was written (iteration 7 of 10). The API-equivalent budget cap of $80 ends it at about iteration 7. The full history is in [`docs/exp1/history_summary.json`](docs/exp1/history_summary.json).
+The run stopped after iteration 7, when it reached the $80 API-equivalent budget cap (final total $85.50). Iteration 5 is the best. The full history is in [`docs/exp1/history_summary.json`](docs/exp1/history_summary.json).
 
 | iter | parent | score | Δ vs best | accepted | checks (mean) | judge (mean) | photoreal / complete / plausible (1–10) | repairs | S / U chars |
 |---|---|---|---|---|---|---|---|---|---|
@@ -79,6 +79,7 @@ The run was still going when this was written (iteration 7 of 10). The API-equiv
 | 4 | 3 | 64.1 | −3.2 | ✘ | 93.5 | 50.6 | 5.3 / 6.1 / 5.5 | 1, 0 | 13.7k / 10.0k |
 | **5** | 3 | **75.0** | **+7.7** | ✔ | **97.8** | 62.7 | 5.9 / 7.7 / 6.9 | 0, 0 | 13.6k / 11.8k |
 | 6 | 5 | 74.0 | −1.0 | ✘ | 97.5 | **65.9** | **6.2 / 8.0 / 7.1** | 1, 1 | 15.4k / 13.0k |
+| 7 | 5 | 71.8 | −3.2 | ✘ | 97.5 | 62.7 | 6.0 / 7.7 / 6.6 | 1, 1 | 15.7k / 13.5k |
 
 **What the loop learned:**
 - **Iteration 1 failed by over-specifying.** The optimizer expanded the prompts about 50×, and the generated scripts ran past the output limit or the render timeout.
@@ -87,7 +88,7 @@ The run was still going when this was written (iteration 7 of 10). The API-equiv
 - **Optimizer edits to the system prompt** were Blender 5.2 API names, glass and window recipes, the lawn and fence setup, and exterior wall depth.
 - **Optimizer edits to the user prompt** were the room layout, the furniture per room, the street furniture and the backyard layout.
 - **Every edit cites a judge defect or check failure,** recorded in `optimizer.json`.
-- **Iteration 6 had the best judge scores** but lost to iteration 5, because the repair penalty cost more than the judge gain. Elitism kept iteration 5 as the parent.
+- **Iteration 6 had the best judge scores** but lost to iteration 5, because the repair penalty cost more than the judge gain. Elitism kept iteration 5 as the parent. Iteration 7 tried to keep iteration 6's fixes without the truncation, but both samples still needed a repair. Prompt length growth (~29k chars) is the current bottleneck.
 
 **Same camera, seed (iteration 0) vs best (iteration 5).** These are sample 1 of each.
 
