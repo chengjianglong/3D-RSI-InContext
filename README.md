@@ -61,6 +61,54 @@ Each run writes `runs/<run_id>/`:
 
 **Score** = `0.35·checks + 0.65·judge − 3·repairs`. A failed sample scores 0. The iteration score is the mean over its samples, which reduces noise.
 
+## Results: experiment `exp1`
+
+**Settings:**
+- Claude Opus 5.5 for every role, run through the `claude_cli` backend (subscription).
+- 2 samples per iteration, Cycles at 128 samples, 960×540.
+- Started from the naive one-line seed prompts.
+
+The run was still going when this was written (iteration 7 of 10). The API-equivalent budget cap of $80 ends it at about iteration 7. The full history is in [`docs/exp1/history_summary.json`](docs/exp1/history_summary.json).
+
+| iter | parent | score | Δ vs best | accepted | checks (mean) | judge (mean) | photoreal / complete / plausible (1–10) | repairs | S / U chars |
+|---|---|---|---|---|---|---|---|---|---|
+| 0 | seed | 66.3 | — | ✔ | 91.6 | 52.7 | 5.6 / 6.1 / 5.7 | 0, 0 | 121 / 198 |
+| 1 | 0 | 10.4 | −56.0 | ✘ | 50.3 / fail | 9.4 / fail | 2.3 / 1.2 / 1.6 | 1, 2 | 9.3k / 6.8k |
+| 2 | 0 | 61.5 | −4.9 | ✘ | 96.6 | 44.8 | 4.2 / 6.1 / 5.4 | 1, 0 | 8.9k / 9.1k |
+| 3 | 0 | 67.3 | +1.0 | ✔ | 96.4 | 56.2 | 5.3 / 6.9 / 6.6 | 1, 1 | 9.9k / 8.8k |
+| 4 | 3 | 64.1 | −3.2 | ✘ | 93.5 | 50.6 | 5.3 / 6.1 / 5.5 | 1, 0 | 13.7k / 10.0k |
+| **5** | 3 | **75.0** | **+7.7** | ✔ | **97.8** | 62.7 | 5.9 / 7.7 / 6.9 | 0, 0 | 13.6k / 11.8k |
+| 6 | 5 | 74.0 | −1.0 | ✘ | 97.5 | **65.9** | **6.2 / 8.0 / 7.1** | 1, 1 | 15.4k / 13.0k |
+
+**What the loop learned:**
+- **Iteration 1 failed by over-specifying.** The optimizer expanded the prompts about 50×, and the generated scripts ran past the output limit or the render timeout.
+- **That failure became the main lesson.** Every later proposal kept an explicit script-size budget (about 650 lines, ≤40k chars), and repairs fell to zero by iteration 5.
+- **Floor plan:** an exact floor plan with dimensions pushed the structural checks from about 90 to about 98.
+- **Optimizer edits to the system prompt** were Blender 5.2 API names, glass and window recipes, the lawn and fence setup, and exterior wall depth.
+- **Optimizer edits to the user prompt** were the room layout, the furniture per room, the street furniture and the backyard layout.
+- **Every edit cites a judge defect or check failure,** recorded in `optimizer.json`.
+- **Iteration 6 had the best judge scores** but lost to iteration 5, because the repair penalty cost more than the judge gain. Elitism kept iteration 5 as the parent.
+
+**Same camera, seed (iteration 0) vs best (iteration 5).** These are sample 1 of each.
+
+| view | iteration 0 (66.3) | iteration 5 (75.0) |
+|---|---|---|
+| front street | ![](docs/exp1/renders/iter000_front_street.jpg) | ![](docs/exp1/renders/iter005_front_street.jpg) |
+| backyard | ![](docs/exp1/renders/iter000_backyard.jpg) | ![](docs/exp1/renders/iter005_backyard.jpg) |
+| aerial | ![](docs/exp1/renders/iter000_aerial.jpg) | ![](docs/exp1/renders/iter005_aerial.jpg) |
+| living room | ![](docs/exp1/renders/iter000_room_LivingRoom.jpg) | ![](docs/exp1/renders/iter005_room_LivingRoom.jpg) |
+| kitchen | ![](docs/exp1/renders/iter000_room_Kitchen.jpg) | ![](docs/exp1/renders/iter005_room_Kitchen.jpg) |
+| bedroom 1 | ![](docs/exp1/renders/iter000_room_Bedroom_1.jpg) | ![](docs/exp1/renders/iter005_room_Bedroom_1.jpg) |
+
+**Prompt evolution.**
+- The seed prompts were 121 and 198 characters: [system](docs/exp1/prompts/iter000_system.md), [user](docs/exp1/prompts/iter000_user.md).
+- The best prompts, from iteration 5, are 13.6k and 11.8k characters: [system](docs/exp1/prompts/iter005_system.md), [user](docs/exp1/prompts/iter005_user.md).
+
+**Run cost and time:**
+- About 20–75 min per iteration; generation and rendering dominate.
+- About $7–15 API-equivalent per iteration, not billed on the subscription.
+- The `.blend` files (about 330 MB each, textures packed) and the full renders stay in `runs/`, which git ignores.
+
 ## Test the harness without the API
 
 ```sh
