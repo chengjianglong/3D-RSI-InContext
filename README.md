@@ -22,9 +22,14 @@ No human edits the prompts, the scripts or the scenes. The only fixed inputs are
 
 ## How it works
 
+<p align="center"><img src="docs/media/pipeline.png" width="100%" alt="Pipeline: prompts → generator → Blender → checks + judge → optimizer → selection"></p>
+
+<details>
+<summary>Mermaid version of the diagram (for renderers that support it)</summary>
+
 ```mermaid
 flowchart LR
-    G[(goal_spec.yaml<br/>immutable)] -.scores against.-> C
+    G[("goal_spec.yaml<br/>immutable")] -. "scores against" .-> C
     G -.-> J
     P["S_t, U_t<br/>system + user prompt"] --> GEN["Generator<br/>(Claude)"]
     GEN -->|scene_script.py| B["Headless Blender 5.2<br/>build_scene(ctx)"]
@@ -35,11 +40,13 @@ flowchart LR
     C --> S["score + defects"]
     J --> S
     S --> OPT["Optimizer<br/>(Claude)"]
-    H[(history:<br/>edit → Δscore)] --> OPT
+    H[("history<br/>edit → Δscore")] --> OPT
     OPT -->|"S_t+1, U_t+1"| SEL{"better than<br/>best so far?"}
-    SEL -->|yes: new parent| P
-    SEL -->|no: log lesson,<br/>retry from best| P
+    SEL -->|"yes: new parent"| P
+    SEL -->|"no: log lesson, retry from best"| P
 ```
+
+</details>
 
 Each new iteration starts from the best-scoring prompt pair so far (elitism). A regression is logged, and its lesson is passed to the next proposal.
 - **Cameras:** the harness, not the LLM, places the evaluation cameras, so every iteration is photographed from the same viewpoints.
@@ -94,6 +101,7 @@ Each run writes `runs/<run_id>/`:
 | `rsi/loop.py` | Orchestration: samples per iteration, elitism, budget and plateau stopping, resume. |
 | `rsi/report.py` | Static HTML report. |
 | `scripts/make_media.py` | Builds the README media from a run: score and prompt-length charts, per-view evolution GIFs, the milestone grid, and the fly-through MP4/GIFs. |
+| `scripts/make_diagram.py` | Draws the pipeline diagram (`docs/media/pipeline.png` / `.svg`) with matplotlib, so it renders in any Markdown viewer. |
 | `scripts/blender_flythrough.py` | Renders an aerial orbit and a living-room pan from any generated `scene.blend`. |
 
 **Score** = `0.35·checks + 0.65·judge − 3·repairs`. A failed sample scores 0. The iteration score is the mean over its samples, which reduces noise.
@@ -170,6 +178,7 @@ The prompts grew about 100× in the first rewrite, then kept growing slowly. Rep
 B=/Applications/Blender.app/Contents/MacOS/Blender
 $B -b runs/exp1/iter_005/sample_1/out/scene.blend --python scripts/blender_flythrough.py -- runs/_fly 150 32
 uv run python scripts/make_media.py runs/exp1 docs/media --fly runs/_fly
+uv run python scripts/make_diagram.py docs/media
 ```
 
 ## Test the harness without the API
